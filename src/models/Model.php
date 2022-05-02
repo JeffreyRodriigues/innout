@@ -12,17 +12,17 @@ class Model {
 
     public function loadFromArray($arr) {
         if($arr) {
-            foreach($arr as $key => $value) {
-                $this->set($key, $value);
+            foreach($arr as $key => $value) { 
+                $this-> $key = $value; //se a chave não existe, ele chama o set;
             }
         }
     }
 
-    public function get($key) {
+    public function __get($key) {
         return $this->values[$key];
     }
 
-    public function set($key, $value) {
+    public function __set($key, $value) {
         $this->values[$key] = $value;
     }
 }
