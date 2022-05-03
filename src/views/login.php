@@ -12,7 +12,7 @@
     <title>Entra e sai</title>
 </head>
 
-<body>
+<body class="hide-sidebar">
     <form class="form-login" action="#" method="post">
         <div class="login-card card">
             <div class="card-header">

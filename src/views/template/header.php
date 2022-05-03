@@ -12,7 +12,7 @@
     <title>Entra e sai</title>
 </head>
 
-<body class="hide-sidebar">
+<body class="">
     <header class="header">
         <div class="logo">
             <i class="icofont-travelling mr-3"></i>
