@@ -12,7 +12,7 @@
     <title>Entra e sai</title>
 </head>
 
-<body>
+<body class="hide-sidebar">
     <header class="header">
         <div class="logo">
             <i class="icofont-travelling mr-3"></i>
@@ -25,4 +25,20 @@
             <i class="icofont-navigation-menu"></i>
         </div>
         <div class="spacer"></div>
-    </header>
+        <div class="dropdown">
+            <div class="dropdown-button">
+                <span class="ml-3">Usuário Mock</span>
+                <i class="icofont-simple-down mx-2"></i>
+            </div>
+            <div class="dropdown-content">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="logout.php">
+                            <i class="icofont-logout mr-2"></i>
+                            Sair                    
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+</header>
