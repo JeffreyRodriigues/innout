@@ -45,7 +45,7 @@
                 </div>
             </div>
             <div class="card-footer">
-                <button class="btn btn-lg btn-primary">Entrar</button>
+                <button class="btn btn-lg btn-dark">Entrar</button>
             </div>
         </div>
     </form>

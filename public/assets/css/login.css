@@ -3,7 +3,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #DDD;
+    background-color: #e07144;
 }
 
 .form-login {
@@ -15,6 +15,7 @@ body {
     justify-content: center;
     align-items: center;
     font-size: 1.5rem;
+
 }
 
 .login-card .card-footer {

@@ -32,7 +32,7 @@
             <i class="icon icofont-hour-glass text-primary"></i>
             <div class="info">
                 <span class="main text-primary">
-                    04:23
+                    08:30
                 </span>
                 <span class="label text-muted">Horas Trabalhadas</span>
             </div>
