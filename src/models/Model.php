@@ -57,7 +57,7 @@ class Model {
         }
     }
 
-    public function insert() {
+    public function insert() { //Inserir dados no banco
         $sql = "INSERT INTO " . static::$tableName . " ("
             . implode(",", static::$columns) . ") VALUES (";
         foreach(static::$columns as $col) {
@@ -68,7 +68,7 @@ class Model {
         $this->id = $id;
     }
 
-    public function update() {
+    public function update() { //atualizar dados no banco
         $sql = "UPDATE " . static::$tableName . " SET ";
         foreach(static::$columns as $col) {
             $sql .= " ${col} = " .static::getFormatedValue($this->$col) . ",";
@@ -76,6 +76,12 @@ class Model {
         $sql[strlen($sql) - 1] = ' ';
         $sql .= "WHERE id = {$this->id}";
         Database::executeSQL($sql);
+    }
+
+    public static function getCount($filters = []) { //contando infos do banco
+        $result = static::getResultSetFromSelect(
+            $filters, 'count(*) as count');
+        return $result->fetch_assoc()['count'];
     }
 
     private static function getFilters($filters) { //Responsável pelo Where - Faz um filtro do que foi passado, e retorna o valor
