@@ -13,12 +13,12 @@ class WorkingHours extends Model { // Herda a tabela Model(Banco de dados)
         'worked_time'
     ];
 
-    public static function loadFromUserAndDate($userId, $workDate) { //Carrega o usuário e os dias trabalhados, inicialmente com o tempo zerado
+    public static function loadFromUserAndDate($userId, $workDate) {
         $registry = self::getOne(['user_id' => $userId, 'work_date' => $workDate]);
 
         if(!$registry) {
             $registry = new WorkingHours([
-                'user_id' => $userId,  
+                'user_id' => $userId,
                 'work_date' => $workDate,
                 'worked_time' => 0
             ]);
@@ -100,11 +100,13 @@ class WorkingHours extends Model { // Herda a tabela Model(Banco de dados)
     }
 
     function getBalance() {
-        if($this->time1 && !isPastWorkday($this->work_date)) return '';
+        if(!$this->time1 && !isPastWorkday($this->work_date)) return '';
+        if($this->worked_time == DAILY_TIME) return '-';
 
         $balance = $this->worked_time - DAILY_TIME;
         $balanceString = getTimeStringFromSeconds(abs($balance));
-        return $balanceString;
+        $sign = $this->worked_time >= DAILY_TIME ? '+' : '-';
+        return "{$sign} {$balanceString}";
     }
 
     public static function getMonthlyReport($userId, $date) { //Pega o primeiro dia do mês, até o último dia do mês e cria o relatório

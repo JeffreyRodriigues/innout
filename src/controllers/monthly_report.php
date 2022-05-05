@@ -5,16 +5,35 @@ requireValidSession();
 $currentDate = new DateTime();
 
 $user = $_SESSION['user'];
+$selectedPeriodId = $user->id;
+$users = null;
+if ($user) {
+    $users = User::get();
+    $selectedUserId = $_POST['user'] ? $_POST['user'] : $user->id;
+}
 
-$registries = WorkingHours::getMonthlyReport($user->id, $currentDate);
+$selectedPeriod = $_POST['period'] ? $_POST['period'] : $currentDate->format('Y-m'); //Filtro do período
+$periods = [];
+for ($yearDiff = 0; $yearDiff <= 2; $yearDiff++) { //Período de 2 anos antes do atual ou seja, haverá filtro de 2020 até 2022
+    $year = date('Y') - $yearDiff;
+    for ($month = 12; $month >= 1; $month--) {
+        $date = new DateTime("{$year}-{$month}-1");
+        $periods[$date->format('Y-m')] = strftime('%B de %Y', $date->getTimestamp());
+    }
+}
+
+$registries = WorkingHours::getMonthlyReport($selectedUserId, $selectedPeriod);
 
 $report = [];
 $workDay = 0;
 $sumOfWorkedTime = 0;
-$lastDay = getLastDayOfMonth($currentDate)->format('d');
+//$lastDay = getLastDayOfMonth($currentDate)->format('d');
+$selectedDate = (new DateTime($selectedPeriod)); //Seleciona o período de busca
+$lastDay = getLastDayOfMonth($selectedPeriod)->format('d');
 
 for ($day = 1; $day <= $lastDay; $day++) { //para dia 1, até ultimo dia do mês
-    $date = $currentDate->format('Y-m') . '-' . sprintf('%02d', $day); //formatando o dia, com um 0, exemplo: 1/05/2022 > 01/05/2022
+    //$date = $currentDate->format('Y-m') . '-' . sprintf('%02d', $day); 
+    $date = $selectedPeriod . '-' . sprintf('%02d', $day); //coleta o período solicitado com a formatação inserindo um 0 no começo
     $registry = $registries[$date];
 
     if (isPastWorkday($date)) $workDay++; //contabilizando as horas do passado
@@ -37,5 +56,9 @@ $sign = ($sumOfWorkedTime >= $expectedTime) ? '+' : '-';
 loadTemplateView('monthly_report', [
     'report' => $report,
     'sumOfWorkedTime' => getTimeStringFromSeconds($sumOfWorkedTime),
-    'balance' => "{$sign}{$balance}"
+    'balance' => "{$sign}{$balance}",
+    'selectedPeriod' => $selectedPeriod,
+    'periods' => $periods,
+    'selectedUserId' => $selectedUserId,
+    'users' => $users,
 ]);

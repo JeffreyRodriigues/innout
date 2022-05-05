@@ -38,13 +38,14 @@ function getDayTemplateByOdds($regularRate, $extraRate, $lazyRate) { //Função 
     }
 }
 
-function populateWorkingHours($userId, $initialDate, $regularRate, $extraRate, $lazyRate) { //Função para popular o banco com as hroas trabalhadas
+function populateWorkingHours($userId, $initialDate, $regularRate, $extraRate, $lazyRate) {
     $currentDate = $initialDate;
-    $today = new DateTime();
+    $yesterday = new DateTime();
+    $yesterday->modify('-1 day');
     $columns = ['user_id' => $userId, 'work_date' => $currentDate];
 
-    while(isBefore($currentDate, $today)) {
-        if(!isWeekend($currentDate)) { //Se diferente do fim de semana, envia as informações
+    while(isBefore($currentDate, $yesterday)) {
+        if(!isWeekend($currentDate)) {
             $template = getDayTemplateByOdds($regularRate, $extraRate, $lazyRate);
             $columns = array_merge($columns, $template);
             $workingHours = new WorkingHours($columns);
