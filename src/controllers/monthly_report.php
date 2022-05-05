@@ -13,11 +13,11 @@ $workDay = 0;
 $sumOfWorkedTime = 0;
 $lastDay = getLastDayOfMonth($currentDate)->format('d');
 
-for ($day = 1; $day <= $lastDay; $day++) {
-    $date = $currentDate->format('Y-m') . '-' . sprintf('%02d', $day);
+for ($day = 1; $day <= $lastDay; $day++) { //para dia 1, até ultimo dia do mês
+    $date = $currentDate->format('Y-m') . '-' . sprintf('%02d', $day); //formatando o dia, com um 0, exemplo: 1/05/2022 > 01/05/2022
     $registry = $registries[$date];
 
-    if (isPastWorkday($date)) $workDay++;
+    if (isPastWorkday($date)) $workDay++; //contabilizando as horas do passado
 
     if ($registry) {
         $sumOfWorkedTime += $registry->worked_time;
@@ -30,12 +30,12 @@ for ($day = 1; $day <= $lastDay; $day++) {
     }
 }
 
-$expectedTime = $workDay * DAILY_TIME;
+$expectedTime = $workDay * DAILY_TIME; //Quanto tempo o usuário deve trabalhar
 $balance = getTimeStringFromSeconds(abs($sumOfWorkedTime - $expectedTime));
 $sign = ($sumOfWorkedTime >= $expectedTime) ? '+' : '-';
 
 loadTemplateView('monthly_report', [
     'report' => $report,
-    'sumOfWorkedTime' => $sumOfWorkedTime,
+    'sumOfWorkedTime' => getTimeStringFromSeconds($sumOfWorkedTime),
     'balance' => "{$sign}{$balance}"
 ]);

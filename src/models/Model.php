@@ -45,7 +45,7 @@ class Model {
         return $objects;
     }
 
-    public static function getResultSetFromSelect($filters = [],  $columns = '*') {
+    public static function getResultSetFromSelect($filters = [],  $columns = '*') {//Recebe os filtros, e a lista de colunas que quero obter no banco
         $sql = "SELECT ${columns} FROM "
         . static::$tableName
         . static::getFilters($filters);
@@ -78,13 +78,13 @@ class Model {
         Database::executeSQL($sql);
     }
 
-    private static function getFilters($filters) {
+    private static function getFilters($filters) { //Responsável pelo Where - Faz um filtro do que foi passado, e retorna o valor
         $sql = '';
         if(count($filters) > 0) {
             $sql .= " WHERE 1 = 1";
             foreach($filters as $column => $value) {
-                if($column == 'raw') {
-                    $sql .= " AND {$value}";
+                if($column == 'raw') { //sempre que colocar raw...
+                    $sql .= " AND {$value}";//...Insere o valor no Where
                 }else {
                     $sql .= " AND ${column} = " . static::getFormatedValue($value);
                 }

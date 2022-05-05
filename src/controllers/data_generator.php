@@ -3,8 +3,8 @@
 Database::executeSQL('DELETE FROM working_hours');
 Database::executeSQL('DELETE FROM users WHERE id > 5');
 
-function getDayTemplateByOdds($regularRate, $extraRate, $lazyRate) {
-    $regularDayTemplate = [
+function getDayTemplateByOdds($regularRate, $extraRate, $lazyRate) { //Função de Template de horas
+    $regularDayTemplate = [ //Dia comum
         'time1' => '08:00:00',
         'time2' => '12:00:00',
         'time3' => '13:00:00',
@@ -12,7 +12,7 @@ function getDayTemplateByOdds($regularRate, $extraRate, $lazyRate) {
         'worked_time' => DAILY_TIME
     ];
     
-    $extraHourDayTemplate = [
+    $extraHourDayTemplate = [ //Dia com hora extra
         'time1' => '08:30:00',
         'time2' => '12:00:00',
         'time3' => '13:00:00',
@@ -20,7 +20,7 @@ function getDayTemplateByOdds($regularRate, $extraRate, $lazyRate) {
         'worked_time' => DAILY_TIME + 3600
     ];
     
-    $lazyDayTemplate = [
+    $lazyDayTemplate = [ //Dia com Atraso
         'time1' => '08:30:00',
         'time2' => '12:00:00',
         'time3' => '13:00:00',
@@ -28,7 +28,7 @@ function getDayTemplateByOdds($regularRate, $extraRate, $lazyRate) {
         'worked_time' => DAILY_TIME - 1800
     ];
 
-    $value = rand(0, 100);
+    $value = rand(0, 100); //Com valor de 0 a 100, retorna de forma randomica, um dos três Templates de horário
     if($value <= $regularRate) {
         return $regularDayTemplate;
     } elseif($value <= $regularRate + $extraRate) {
@@ -38,13 +38,13 @@ function getDayTemplateByOdds($regularRate, $extraRate, $lazyRate) {
     }
 }
 
-function populateWorkingHours($userId, $initialDate, $regularRate, $extraRate, $lazyRate) {
+function populateWorkingHours($userId, $initialDate, $regularRate, $extraRate, $lazyRate) { //Função para popular o banco com as hroas trabalhadas
     $currentDate = $initialDate;
     $today = new DateTime();
     $columns = ['user_id' => $userId, 'work_date' => $currentDate];
 
     while(isBefore($currentDate, $today)) {
-        if(!isWeekend($currentDate)) {
+        if(!isWeekend($currentDate)) { //Se diferente do fim de semana, envia as informações
             $template = getDayTemplateByOdds($regularRate, $extraRate, $lazyRate);
             $columns = array_merge($columns, $template);
             $workingHours = new WorkingHours($columns);
@@ -55,8 +55,8 @@ function populateWorkingHours($userId, $initialDate, $regularRate, $extraRate, $
     }
 }
 
-$lastMonth = strtotime('first day of last month');
-populateWorkingHours(1, date('Y-m-1'), 70, 20, 10);
+$lastMonth = strtotime('first day of last month'); //Define o ultimo dia do mês, para popular a tabela até o mesmo
+populateWorkingHours(1, date('Y-m-1'), 70, 20, 10); //Usuário com o ID 1
 populateWorkingHours(3, date('Y-m-d', $lastMonth), 20, 75, 5);
 populateWorkingHours(4, date('Y-m-d', $lastMonth), 20, 10, 70);
 

@@ -1,8 +1,8 @@
 <?php
 
-class WorkingHours extends Model {
-    protected static $tableName = 'working_hours';
-    protected static $columns = [
+class WorkingHours extends Model { // Herda a tabela Model(Banco de dados)
+    protected static $tableName = 'working_hours'; //tabela workinh_hours do banco
+    protected static $columns = [ //colunas que serão utilizadas
         'id',
         'user_id',
         'work_date',
@@ -13,7 +13,7 @@ class WorkingHours extends Model {
         'worked_time'
     ];
 
-    public static function loadFromUserAndDate($userId, $workDate) {
+    public static function loadFromUserAndDate($userId, $workDate) { //Carrega o usuário e os dias trabalhados, inicialmente com o tempo zerado
         $registry = self::getOne(['user_id' => $userId, 'work_date' => $workDate]);
 
         if(!$registry) {
@@ -27,7 +27,7 @@ class WorkingHours extends Model {
         return $registry;
     }
 
-    public function getNextTime() {
+    public function getNextTime() { //Verifica se bateu os pontos
         if(!$this->time1) return 'time1';
         if(!$this->time2) return 'time2';
         if(!$this->time3) return 'time3';
@@ -35,48 +35,48 @@ class WorkingHours extends Model {
         return null;
     }
 
-    public function getActiveClock() {
+    public function getActiveClock() { //Verifica se bateu os pontos
         $nextTime = $this->getNextTime();
-        if($nextTime === 'time1' || $nextTime === 'time3') {
-            return 'exitTime';
-        } elseif($nextTime === 'time2' || $nextTime === 'time4') {
-           return 'workedInterval';
+        if($nextTime === 'time1' || $nextTime === 'time3') { //SE entrada 1, e entrada 2 ok...
+            return 'exitTime'; //...retorna exit time
+        } elseif($nextTime === 'time2' || $nextTime === 'time4') { //SE NÃO SE intervalo ou saída ok ...
+           return 'workedInterval'; //...retorna intervalo de trabalho
         } else {
             return null;
         }
     }
 
-    public function innout($time) {
+    public function innout($time) { //Batimento dos pontos
         $timeColumn = $this->getNextTime();
-        if(!$timeColumn) {
+        if(!$timeColumn) { //Se os pontos estiverem preenchidos, informar que já bateu os pontos
             throw new AppException("Você já fez os 4 batimentos do dia!");
         }
 
-        $this->$timeColumn = $time;
-        $this->worked_time = getSecondsFromDateInterval($this->getWorkedInterval());
-        if($this->id) {
+        $this->$timeColumn = $time; //Da um SET no ponto correto
+        $this->worked_time = getSecondsFromDateInterval($this->getWorkedInterval()); //Pega o intervalo e converte em segundos
+        if($this->id) {  
             $this->update();
         } else {
             $this->insert();
         }
     }
 
-    function getWorkedInterval(){
+    function getWorkedInterval(){ //Fazendo a contagem dos intervalos que o funcionário trabalhou
         [$t1, $t2, $t3, $t4] = $this->getTimes();
 
-        $part1 = new DateInterval('PT0S');
+        $part1 = new DateInterval('PT0S'); //formatando a data Inicia com P = Período, T= Tempo,  0= = Uma string, S = Segundos
         $part2 = new DateInterval('PT0S');
 
-        if($t1) $part1 = $t1->diff(new DateTime());
-        if($t2) $part1 = $t1->diff($t2);
-        if($t3) $part2 = $t3->diff(new DateTime());
-        if($t4) $part2 = $t3->diff($t4);
+        if($t1) $part1 = $t1->diff(new DateTime()); //iniciar o tempo
+        if($t2) $part1 = $t1->diff($t2); //Pegar diferença entre ponto de entrada e intervalo
+        if($t3) $part2 = $t3->diff(new DateTime()); //Pegar diferença entre ida intervalo e volta intervalo
+        if($t4) $part2 = $t3->diff($t4); //Pegar diferença entre volta intervalo e saída
 
-        return sumIntervals($part1, $part2);
+        return sumIntervals($part1, $part2); //Somar o valor de Entrada e saída
     }
 
-    function getLunchInterval() {
-        [, $t2, $t3] = $this->getTimes();
+    function getLunchInterval() { //Verificar horário do almoço
+        [, $t2, $t3,] = $this->getTimes();
         $lunchInterval = new DateInterval('PT0S');
 
         if($t2) $lunchInterval = $t2->diff(new DateTime());
@@ -85,13 +85,12 @@ class WorkingHours extends Model {
         return $lunchInterval;
     }
 
-    function getExitTime() {
+    function getExitTime() { //Horário de saída
         [$t1,,, $t4] = $this->getTimes();
         $workday = DateInterval::createFromDateString('8 hours');
-        $defaultLunchInterval = DateInterval::createFromDateString('1 hour');
 
         if(!$t1) {
-            return (new DateTimeImmutable())->add($workday)->add($defaultLunchInterval);
+            return (new DateTimeImmutable())->add($workday);
         } elseif($t4) {
             return $t4;
         } else {
@@ -100,19 +99,27 @@ class WorkingHours extends Model {
         }
     }
 
-    public static function getMonthlyReport($userId, $date) {
+    function getBalance() {
+        if($this->time1 && !isPastWorkday($this->work_date)) return '';
+
+        $balance = $this->worked_time - DAILY_TIME;
+        $balanceString = getTimeStringFromSeconds(abs($balance));
+        return $balanceString;
+    }
+
+    public static function getMonthlyReport($userId, $date) { //Pega o primeiro dia do mês, até o último dia do mês e cria o relatório
         $registries = [];
         $startDate = getFirstDayOfMonth($date)->format('Y-m-d');
         $endDate = getLastDayOfMonth($date)->format('Y-m-d');
         
-        $result = static::getResultSetFromSelect([
+        $result = static::getResultSetFromSelect([ //Consulta no banco
             'user_id' => $userId,
             'raw' => "work_date between '{$startDate}' AND '{$endDate}' "
         ]);
 
-        if($result) {
+        if($result) { //Faço um laço, e o que achar, colocar no $registries
             while($row = $result->fetch_assoc()) {
-                $registries[$row['work_date']] = new WorkingHours($row);
+                $registries[$row['work_date']] = new WorkingHours($row); //instancia de working hours
             }
         }
 
