@@ -11,6 +11,6 @@ $hoursInMonth = explode(':', getTimeStringFromSeconds($seconds))[0];
 
 loadTemplateView('manager_report', [
     'activeUsersCount' => $activeUsersCount,
-    'abstentUsers' => $absentUsers,
+    'absentUsers' => $absentUsers,
     'hoursInMonth' => $hoursInMonth,
 ]);
